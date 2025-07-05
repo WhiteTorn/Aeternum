@@ -12,7 +12,6 @@ public class SandClockScript : MonoBehaviour
     // This method is called by Unity when another collider enters this object's trigger zone.
     private void OnTriggerEnter(Collider other)
     {
-        // Check if the object that entered is the player
         if (other.CompareTag(interactionTag))
         {
             isPlayerInRange = true;
@@ -24,7 +23,6 @@ public class SandClockScript : MonoBehaviour
     // This method is called by Unity when another collider exits this object's trigger zone.
     private void OnTriggerExit(Collider other)
     {
-        // Check if the object that exited is the player
         if (other.CompareTag(interactionTag))
         {
             isPlayerInRange = false;
@@ -35,23 +33,28 @@ public class SandClockScript : MonoBehaviour
 
     private void Update()
     {
-        // If the player is in range AND they press the E key...
         if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
         {
-            // ...then perform the action!
             CollectSandclock();
         }
     }
 
     private void CollectSandclock()
     {
-        Debug.Log("Sandclock collected!");
+        Debug.Log("Sandclock collected! Forcing time shift to Present...");
 
         // 1. Tell the TimeManager to unlock the time-switching ability.
         TimeManager.Instance.EnableTimeControl();
 
-        // 2. Deactivate the sandclock object to make it "disappear".
-        //    This also stops this script from running again.
+        // --- NEW LINE ---
+        // 2. Force the time to switch to the Present dimension.
+        // This will fire the OnTimeChanged event that all your TimeAwareObjects listen to.
+        TimeManager.Instance.SwitchToPresent();
+
+        // 3. Deactivate the sandclock object to make it "disappear".
+        //    This must be the LAST step, otherwise the script stops and can't call SwitchToPresent.
         gameObject.SetActive(false);
+
+        // You could also add a screen fade or a sound effect here for dramatic impact!
     }
 }

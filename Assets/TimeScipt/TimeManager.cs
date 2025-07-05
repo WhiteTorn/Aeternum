@@ -36,7 +36,7 @@ public class TimeManager : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.R)) { SwitchToPresent(); }
             // Note: We use 'E' for the future. The Sandclock script will handle
             // the interaction 'E' press, so they won't conflict.
-            else if (Input.GetKeyDown(KeyCode.E)) { SwitchToFuture(); }
+            else if (Input.GetKeyDown(KeyCode.Y)) { SwitchToFuture(); }
         }
     }
 

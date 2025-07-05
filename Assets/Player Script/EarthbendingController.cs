@@ -20,12 +20,10 @@ public class EarthbendingController : MonoBehaviour
 
     [Header("Effects")]
     [SerializeField] private ParticleSystem spawnVFX;
-    
+
     private List<GameObject> bentRocks = new List<GameObject>();
     private int currentRockTypeIndex = 0;
 
-    // --- NEW PUBLIC FUNCTION ---
-    // This allows other scripts to tell us when a rock has been permanently placed.
     public void FreeUpBentRockSlot(GameObject rockToRemove)
     {
         if (bentRocks.Contains(rockToRemove))
@@ -34,8 +32,7 @@ public class EarthbendingController : MonoBehaviour
             Debug.Log("A rock was stuck to a surface! Bending slot freed.");
         }
     }
-    
-    // --- The rest of your script remains unchanged ---
+
     void Update()
     {
         if (Input.GetKeyDown(switchTypeKey)) SwitchRockType();
@@ -73,10 +70,21 @@ public class EarthbendingController : MonoBehaviour
         GameObject prefabToSpawn = rockPrefabs[currentRockTypeIndex];
         GameObject newRock = Instantiate(prefabToSpawn, startPosition, Quaternion.identity);
         bentRocks.Add(newRock);
+
+        // --- NEW CODE ---
+        // Get the TimeAwareObject component and tell it when it was created.
+        TimeAwareObject timeAwareComponent = newRock.GetComponent<TimeAwareObject>();
+        if (timeAwareComponent != null)
+        {
+            timeAwareComponent.Initialize(TimeManager.Instance.CurrentTime);
+        }
+        // --- END NEW CODE ---
+
         Rigidbody rockRb = newRock.GetComponent<Rigidbody>();
         Collider rockCollider = newRock.GetComponent<Collider>();
-        rockRb.isKinematic = true;
-        rockCollider.enabled = false;
+        if (rockRb) rockRb.isKinematic = true;
+        if (rockCollider) rockCollider.enabled = false;
+
         float elapsedTime = 0f;
         while (elapsedTime < pullDuration)
         {
@@ -84,8 +92,9 @@ public class EarthbendingController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+
         newRock.transform.position = endPosition;
-        rockCollider.enabled = true;
-        rockRb.isKinematic = false;
+        if (rockCollider) rockCollider.enabled = true;
+        if (rockRb) rockRb.isKinematic = false;
     }
 }

@@ -1,20 +1,23 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TimeAwareObject : MonoBehaviour
 {
     // A simple struct to hold the state of our object.
-    // You can add more variables here (e.g., bool isEnabled, float health).
     private struct ObjectState
     {
         public Vector3 position;
         public Quaternion rotation;
-        // public bool isActive; // Example of another property you could track
     }
 
     // Stored states for each dimension
     private ObjectState pastState;
-        private ObjectState presentState;
+    private ObjectState presentState;
     private ObjectState futureState;
+
+    [Header("Configuration")]
+    [Tooltip("The time dimension this object was created in. This will be set by the script that spawns it.")]
+    [SerializeField] private TimeManager.TimeDimension creationDimension = TimeManager.TimeDimension.Past; // Default to Past for objects placed in the editor
 
     [Header("Visuals")]
     [Tooltip("The renderer whose material will be swapped.")]
@@ -23,15 +26,10 @@ public class TimeAwareObject : MonoBehaviour
     [SerializeField] private Material presentMaterial;
     [SerializeField] private Material futureStateMaterial;
 
+    private bool isInitialized = false;
+
     private void Awake()
     {
-        // On start, all states are the same as the object's initial state in the scene.
-        pastState.position = transform.position;
-        pastState.rotation = transform.rotation;
-
-        presentState = pastState;
-        futureState = pastState;
-
         // If no renderer is assigned, try to find one on this GameObject.
         if (objectRenderer == null)
         {
@@ -41,24 +39,45 @@ public class TimeAwareObject : MonoBehaviour
 
     private void OnEnable()
     {
-        // Subscribe to the event when this object is enabled
         TimeManager.OnTimeChanged += HandleTimeChange;
+        // If the object is re-enabled, ensure its state is correct for the current time
+        if (isInitialized)
+        {
+            ApplyState(TimeManager.Instance.CurrentTime);
+        }
     }
 
     private void OnDisable()
     {
-        // Unsubscribe to prevent errors when the object is destroyed
         TimeManager.OnTimeChanged -= HandleTimeChange;
     }
 
     /// <summary>
-    /// This is the core logic. It's called by the TimeManager's event.
+    /// This method MUST be called by the script that instantiates this object.
+    /// It sets the object's creation time and saves its initial state.
     /// </summary>
+    public void Initialize(TimeManager.TimeDimension birthDimension)
+    {
+        this.creationDimension = birthDimension;
+
+        // Save the initial state ONLY in its birth dimension and future dimensions.
+        RecordState(birthDimension);
+        PropagateStates(birthDimension);
+
+        isInitialized = true;
+
+        // Immediately apply the correct state to ensure it's visible/invisible as needed.
+        ApplyState(TimeManager.Instance.CurrentTime);
+    }
+
     private void HandleTimeChange(TimeManager.TimeDimension newTime)
     {
         // 1. Record the object's CURRENT transform into the OLD time dimension's state
-        //    This captures any changes the player made before the time switch.
-        RecordState(TimeManager.Instance.CurrentTime);
+        //    (Only if the object was active in that timeline)
+        if (gameObject.activeSelf)
+        {
+            RecordState(TimeManager.Instance.CurrentTime);
+        }
 
         // 2. Propagate the changes according to the rules
         PropagateStates(TimeManager.Instance.CurrentTime);
@@ -67,9 +86,6 @@ public class TimeAwareObject : MonoBehaviour
         ApplyState(newTime);
     }
 
-    /// <summary>
-    /// Saves the current transform of the GameObject into the specified state variable.
-    /// </summary>
     private void RecordState(TimeManager.TimeDimension time)
     {
         switch (time)
@@ -88,40 +104,43 @@ public class TimeAwareObject : MonoBehaviour
                 break;
         }
     }
-    
-    /// <summary>
-    /// This enforces the state propagation rules you defined.
-    /// It's called AFTER recording a state change.
-    /// </summary>
+
     private void PropagateStates(TimeManager.TimeDimension changedTime)
     {
         switch (changedTime)
         {
-            // If we just changed something in the PAST...
             case TimeManager.TimeDimension.Past:
-                // ...it propagates to Present and Future.
                 presentState = pastState;
                 futureState = pastState;
                 break;
-
-            // If we just changed something in the PRESENT...
             case TimeManager.TimeDimension.Present:
-                // ...it only propagates to the Future. Past is unaffected.
                 futureState = presentState;
                 break;
-
-            // If we just changed something in the FUTURE...
             case TimeManager.TimeDimension.Future:
-                // ...it affects nothing else.
+                // No propagation
                 break;
         }
     }
 
-    /// <summary>
-    /// Sets the object's transform and material based on the state for the target time.
-    /// </summary>
     private void ApplyState(TimeManager.TimeDimension time)
     {
+        // --- THIS IS THE KEY LOGIC FIX ---
+        // An object should only exist if the current time is its creation time or later.
+        // We can treat the enums as integers for comparison (Past=0, Present=1, Future=2)
+        bool shouldExist = (int)time >= (int)creationDimension;
+
+        // Activate or deactivate the object based on the check.
+        gameObject.SetActive(shouldExist);
+
+
+        // If it shouldn't exist, stop here.
+        if (!shouldExist)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        // --- The rest of the method is the same ---
         switch (time)
         {
             case TimeManager.TimeDimension.Past:
