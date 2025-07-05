@@ -8,16 +8,14 @@ public class TimeManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); }
+        else { Instance = this; }
     }
     // -------------------------
+
+    // ADD THIS NEW PROPERTY
+    // This will be false by default, locking the time-switching ability.
+    public bool CanControlTime { get; private set; } = false;
 
     public enum TimeDimension { Past, Present, Future }
 
@@ -28,26 +26,39 @@ public class TimeManager : MonoBehaviour
 
     public static event Action<TimeDimension> OnTimeChanged;
 
+    // MODIFY THE UPDATE METHOD
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T)) { SwitchToPast(); }
-        else if (Input.GetKeyDown(KeyCode.R)) { SwitchToPresent(); }
-        else if (Input.GetKeyDown(KeyCode.E)) { SwitchToFuture(); }
+        // IMPORTANT: Only check for input if the player has the ability!
+        if (CanControlTime)
+        {
+            if (Input.GetKeyDown(KeyCode.T)) { SwitchToPast(); }
+            else if (Input.GetKeyDown(KeyCode.R)) { SwitchToPresent(); }
+            // Note: We use 'E' for the future. The Sandclock script will handle
+            // the interaction 'E' press, so they won't conflict.
+            else if (Input.GetKeyDown(KeyCode.E)) { SwitchToFuture(); }
+        }
     }
 
-    // =================================================================
-    // =========== THE LOGIC FIX IS IN THE THREE METHODS BELOW =========
-    // =================================================================
-    
+    // ADD THIS NEW PUBLIC METHOD
+    /// <summary>
+    /// This method will be called by the Sandclock to grant the time-switching power.
+    /// </summary>
+    public void EnableTimeControl()
+    {
+        if (CanControlTime) return; // Don't do anything if it's already enabled
+
+        CanControlTime = true;
+        Debug.Log("Time control abilities have been acquired!");
+        // You could also trigger a UI notification or sound effect here.
+    }
+
+
+    // (The SwitchToPast, SwitchToPresent, and SwitchToFuture methods remain unchanged)
     public void SwitchToPast()
     {
         if (_currentTime == TimeDimension.Past) return;
-        
-        // IMPORTANT: We invoke the event BEFORE changing our internal state.
-        // This lets all objects correctly record their state for the dimension we are LEAVING.
         OnTimeChanged?.Invoke(TimeDimension.Past);
-        
-        // Now we update our state.
         _currentTime = TimeDimension.Past;
         Debug.Log("Switched to PAST. Present and Future will be reset.");
     }
@@ -55,9 +66,7 @@ public class TimeManager : MonoBehaviour
     public void SwitchToPresent()
     {
         if (_currentTime == TimeDimension.Present) return;
-        
         OnTimeChanged?.Invoke(TimeDimension.Present);
-        
         _currentTime = TimeDimension.Present;
         Debug.Log("Switched to PRESENT. Future will be reset.");
     }
@@ -65,9 +74,7 @@ public class TimeManager : MonoBehaviour
     public void SwitchToFuture()
     {
         if (_currentTime == TimeDimension.Future) return;
-
         OnTimeChanged?.Invoke(TimeDimension.Future);
-
         _currentTime = TimeDimension.Future;
         Debug.Log("Switched to FUTURE.");
     }
