@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Collections.Generic; // Required for using Lists
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EarthbendingController : MonoBehaviour
@@ -7,13 +7,13 @@ public class EarthbendingController : MonoBehaviour
     [Header("Setup Fields")]
     [SerializeField] private Camera playerCamera;
     [Tooltip("Assign your rock prefabs here: 0=Regular, 1=Tall, 2=Wide")]
-    [SerializeField] private GameObject[] rockPrefabs; // An array for our different rock types
+    [SerializeField] private GameObject[] rockPrefabs;
     [SerializeField] private LayerMask groundLayerMask;
 
     [Header("Bending Settings")]
     [SerializeField] private KeyCode bendKey = KeyCode.E;
-    [SerializeField] private KeyCode switchTypeKey = KeyCode.Q; // Key to cycle through rock types
-    [SerializeField] private int maxBentObjects = 3; // The maximum number of objects we can bend
+    [SerializeField] private KeyCode switchTypeKey = KeyCode.Q;
+    [SerializeField] private int maxBentObjects = 3;
     [SerializeField] private float bendRange = 15f;
     [SerializeField] private float pullHeight = 1f;
     [SerializeField] private float pullDuration = 0.5f;
@@ -21,50 +21,42 @@ public class EarthbendingController : MonoBehaviour
     [Header("Effects")]
     [SerializeField] private ParticleSystem spawnVFX;
     
-    // --- NEW VARIABLES ---
-    private List<GameObject> bentRocks = new List<GameObject>(); // Tracks our active rocks
-    private int currentRockTypeIndex = 0; // Tracks which rock type is selected
+    private List<GameObject> bentRocks = new List<GameObject>();
+    private int currentRockTypeIndex = 0;
 
+    // --- NEW PUBLIC FUNCTION ---
+    // This allows other scripts to tell us when a rock has been permanently placed.
+    public void FreeUpBentRockSlot(GameObject rockToRemove)
+    {
+        if (bentRocks.Contains(rockToRemove))
+        {
+            bentRocks.Remove(rockToRemove);
+            Debug.Log("A rock was stuck to a surface! Bending slot freed.");
+        }
+    }
+    
+    // --- The rest of your script remains unchanged ---
     void Update()
     {
-        // Handle switching rock types
-        if (Input.GetKeyDown(switchTypeKey))
-        {
-            SwitchRockType();
-        }
-
-        // Handle performing the bend
-        if (Input.GetKeyDown(bendKey))
-        {
-            PerformEarthbend();
-        }
+        if (Input.GetKeyDown(switchTypeKey)) SwitchRockType();
+        if (Input.GetKeyDown(bendKey)) PerformEarthbend();
     }
 
     private void SwitchRockType()
     {
-        if (rockPrefabs.Length == 0) return; // Safety check
-
-        // Cycle to the next index, wrapping around if we reach the end
+        if (rockPrefabs.Length == 0) return;
         currentRockTypeIndex = (currentRockTypeIndex + 1) % rockPrefabs.Length;
-        
-        // Give the player feedback on what they selected
         Debug.Log("Switched to rock type: " + rockPrefabs[currentRockTypeIndex].name);
     }
 
     private void PerformEarthbend()
     {
-        // --- NEW LIMIT LOGIC ---
-        // 1. Clean up any destroyed rocks from our list
         bentRocks.RemoveAll(item => item == null);
-
-        // 2. Check if we are at our limit
         if (bentRocks.Count >= maxBentObjects)
         {
             Debug.Log("Bending limit reached! Cannot spawn more rocks.");
-            return; // Stop the function here
+            return;
         }
-
-        // Raycast logic remains the same
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, bendRange, groundLayerMask))
@@ -75,27 +67,16 @@ public class EarthbendingController : MonoBehaviour
 
     private IEnumerator BendRockFromGround(Vector3 spawnPosition)
     {
-        if (spawnVFX != null)
-        {
-            Instantiate(spawnVFX, spawnPosition, Quaternion.identity);
-        }
-
+        if (spawnVFX != null) Instantiate(spawnVFX, spawnPosition, Quaternion.identity);
         Vector3 startPosition = spawnPosition - Vector3.up * 0.5f;
         Vector3 endPosition = spawnPosition + Vector3.up * pullHeight;
-        
-        // --- NEW: Select the correct prefab from our array ---
         GameObject prefabToSpawn = rockPrefabs[currentRockTypeIndex];
         GameObject newRock = Instantiate(prefabToSpawn, startPosition, Quaternion.identity);
-        
-        // --- NEW: Add the newly created rock to our tracking list ---
         bentRocks.Add(newRock);
-
         Rigidbody rockRb = newRock.GetComponent<Rigidbody>();
         Collider rockCollider = newRock.GetComponent<Collider>();
-
         rockRb.isKinematic = true;
         rockCollider.enabled = false;
-
         float elapsedTime = 0f;
         while (elapsedTime < pullDuration)
         {
@@ -103,7 +84,6 @@ public class EarthbendingController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-
         newRock.transform.position = endPosition;
         rockCollider.enabled = true;
         rockRb.isKinematic = false;
