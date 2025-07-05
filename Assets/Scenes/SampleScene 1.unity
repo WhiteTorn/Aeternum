@@ -732,11 +732,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 558828780}
-  rockPrefab: {fileID: 8701776206258502452, guid: 112c38e0c25a1fa40823e148c6a31636, type: 3}
+  rockPrefabs: []
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 64
   bendKey: 101
+  switchTypeKey: 113
+  maxBentObjects: 3
   bendRange: 15
   pullHeight: 1
   pullDuration: 0.5
