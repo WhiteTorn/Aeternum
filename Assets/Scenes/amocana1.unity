@@ -456,10 +456,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: env1 1
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: cd6294687ff2eeb469784e098cf3af57, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: cd6294687ff2eeb469784e098cf3af57, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1338249248}
   m_SourcePrefab: {fileID: 100100000, guid: cd6294687ff2eeb469784e098cf3af57, type: 3}
 --- !u!1 &694173689
 GameObject:
@@ -852,6 +859,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f80d3cefc0331449c1ff85449ef65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  creationDimension: 0
   objectRenderer: {fileID: 0}
   pastMaterial: {fileID: 2100000, guid: b4ee8bc1325bec744a5eda999a3048b3, type: 2}
   presentMaterial: {fileID: 2100000, guid: b4ee8bc1325bec744a5eda999a3048b3, type: 2}
@@ -1045,7 +1053,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 1295338327}
   sinkVFX: {fileID: 0}
-  unbendRange: 20
+  unbendRange: 15
   sinkDuration: 0.5
 --- !u!114 &1295338331
 MonoBehaviour:
@@ -1163,6 +1171,33 @@ MonoBehaviour:
   zoomSpeed: 5
   minZoomDistance: 1.5
   maxZoomDistance: 5
+--- !u!1 &1338249244 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: cd6294687ff2eeb469784e098cf3af57, type: 3}
+  m_PrefabInstance: {fileID: 685584101}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1338249248
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338249244}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -5495902117074765545, guid: cd6294687ff2eeb469784e098cf3af57, type: 3}
 --- !u!1001 &1376771807
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1446,6 +1481,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f80d3cefc0331449c1ff85449ef65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  creationDimension: 0
   objectRenderer: {fileID: 0}
   pastMaterial: {fileID: 2100000, guid: b4ee8bc1325bec744a5eda999a3048b3, type: 2}
   presentMaterial: {fileID: 2100000, guid: b4ee8bc1325bec744a5eda999a3048b3, type: 2}
@@ -1693,6 +1729,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f80d3cefc0331449c1ff85449ef65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  creationDimension: 0
   objectRenderer: {fileID: 0}
   pastMaterial: {fileID: 2100000, guid: b4ee8bc1325bec744a5eda999a3048b3, type: 2}
   presentMaterial: {fileID: 2100000, guid: b4ee8bc1325bec744a5eda999a3048b3, type: 2}
