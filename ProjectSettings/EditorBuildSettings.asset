@@ -8,6 +8,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/amocana3.unity
+    guid: b0105f476adec514f9183d5156f70fc8
+  - enabled: 1
+    path: Assets/Scenes/amocana1.unity
+    guid: 598b74bb7f47bbd4f97737bcdccb7a73
+  - enabled: 1
+    path: Assets/Scenes/amocana2.unity
+    guid: d7b70d8c006cb2b47842f833159c4007
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

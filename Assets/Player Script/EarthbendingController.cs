@@ -71,14 +71,38 @@ public class EarthbendingController : MonoBehaviour
         GameObject newRock = Instantiate(prefabToSpawn, startPosition, Quaternion.identity);
         bentRocks.Add(newRock);
 
-        // --- NEW CODE ---
-        // Get the TimeAwareObject component and tell it when it was created.
+        // --- THIS IS THE CORRECTED BLOCK ---
         TimeAwareObject timeAwareComponent = newRock.GetComponent<TimeAwareObject>();
         if (timeAwareComponent != null)
         {
-            timeAwareComponent.Initialize(TimeManager.Instance.CurrentTime);
+            // 1. Get the time the pillar is being created in.
+            TimeManager.TimeDimension creationTime = TimeManager.Instance.CurrentTime;
+
+            // 2. Determine which timelines it should be visible in based on causality.
+            //    The | symbol is a "bitwise OR" which combines the flags.
+            TimeManager.TimelineMask visibility;
+            switch (creationTime)
+            {
+                case TimeManager.TimeDimension.Past:
+                    // If created in Past, it exists in Past, Present, AND Future.
+                    visibility = TimeManager.TimelineMask.Past | TimeManager.TimelineMask.Present | TimeManager.TimelineMask.Future;
+                    break;
+                case TimeManager.TimeDimension.Present:
+                    // If created in Present, it exists in Present AND Future.
+                    visibility = TimeManager.TimelineMask.Present | TimeManager.TimelineMask.Future;
+                    break;
+                case TimeManager.TimeDimension.Future:
+                default: // Default case to be safe
+                    // If created in Future, it exists ONLY in the Future.
+                    visibility = TimeManager.TimelineMask.Future;
+                    break;
+            }
+
+            // 3. Call the Initialize method with BOTH required arguments to fix the error.
+            // This is the corrected line
+            timeAwareComponent.InitializeForSpawning(creationTime, visibility);
         }
-        // --- END NEW CODE ---
+        // --- END OF CORRECTED BLOCK ---
 
         Rigidbody rockRb = newRock.GetComponent<Rigidbody>();
         Collider rockCollider = newRock.GetComponent<Collider>();
@@ -88,10 +112,13 @@ public class EarthbendingController : MonoBehaviour
         float elapsedTime = 0f;
         while (elapsedTime < pullDuration)
         {
+            if (newRock == null) yield break; // Safety check if rock is destroyed mid-animation
             newRock.transform.position = Vector3.Lerp(startPosition, endPosition, elapsedTime / pullDuration);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+
+        if (newRock == null) yield break; // Safety check
 
         newRock.transform.position = endPosition;
         if (rockCollider) rockCollider.enabled = true;

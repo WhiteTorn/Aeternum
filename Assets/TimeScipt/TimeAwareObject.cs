@@ -1,88 +1,68 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class TimeAwareObject : MonoBehaviour
 {
-    // A simple struct to hold the state of our object.
-    private struct ObjectState
-    {
-        public Vector3 position;
-        public Quaternion rotation;
-    }
-
-    // Stored states for each dimension
-    private ObjectState pastState;
-    private ObjectState presentState;
-    private ObjectState futureState;
+    private struct ObjectState { public Vector3 position; public Quaternion rotation; }
+    private ObjectState pastState, presentState, futureState;
 
     [Header("Configuration")]
-    [Tooltip("The time dimension this object was created in. This will be set by the script that spawns it.")]
-    [SerializeField] private TimeManager.TimeDimension creationDimension = TimeManager.TimeDimension.Past; // Default to Past for objects placed in the editor
+    [Tooltip("The time dimensions in which this object is allowed to exist.")]
+    [SerializeField] private TimeManager.TimelineMask activeInTimelines = TimeManager.TimelineMask.All;
 
     [Header("Visuals")]
-    [Tooltip("The renderer whose material will be swapped.")]
     [SerializeField] private Renderer objectRenderer;
-    [SerializeField] private Material pastMaterial;
-    [SerializeField] private Material presentMaterial;
-    [SerializeField] private Material futureStateMaterial;
+    [SerializeField] private Material pastMaterial, presentMaterial, futureStateMaterial;
 
-    private bool isInitialized = false;
+    // --- NEW FIELDS TO TRACK CREATION ---
+    private TimeManager.TimeDimension _birthDimension;
+    private bool isDynamicallySpawned = false;
 
     private void Awake()
     {
-        // If no renderer is assigned, try to find one on this GameObject.
-        if (objectRenderer == null)
-        {
-            objectRenderer = GetComponent<Renderer>();
-        }
+        if (objectRenderer == null) { objectRenderer = GetComponent<Renderer>(); }
+        TimeManager.Instance.Register(this);
+        
+        // For objects placed in the editor, we assume they were "born" in the past.
+        _birthDimension = TimeManager.TimeDimension.Past;
+
+        ObjectState initialState = new ObjectState { position = transform.position, rotation = transform.rotation };
+        pastState = presentState = futureState = initialState;
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        TimeManager.OnTimeChanged += HandleTimeChange;
-        // If the object is re-enabled, ensure its state is correct for the current time
-        if (isInitialized)
-        {
-            ApplyState(TimeManager.Instance.CurrentTime);
-        }
-    }
-
-    private void OnDisable()
-    {
-        TimeManager.OnTimeChanged -= HandleTimeChange;
-    }
-
-    /// <summary>
-    /// This method MUST be called by the script that instantiates this object.
-    /// It sets the object's creation time and saves its initial state.
-    /// </summary>
-    public void Initialize(TimeManager.TimeDimension birthDimension)
-    {
-        this.creationDimension = birthDimension;
-
-        // Save the initial state ONLY in its birth dimension and future dimensions.
-        RecordState(birthDimension);
-        PropagateStates(birthDimension);
-
-        isInitialized = true;
-
-        // Immediately apply the correct state to ensure it's visible/invisible as needed.
         ApplyState(TimeManager.Instance.CurrentTime);
     }
 
-    private void HandleTimeChange(TimeManager.TimeDimension newTime)
+    private void OnDestroy()
     {
-        // 1. Record the object's CURRENT transform into the OLD time dimension's state
-        //    (Only if the object was active in that timeline)
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.Unregister(this);
+        }
+    }
+
+    // This method is for your Earthbender
+    public void InitializeForSpawning(TimeManager.TimeDimension birthDimension, TimeManager.TimelineMask visibilityMask)
+    {
+        // --- THIS IS THE KEY ---
+        // We flag this object as spawned and record its true birth time.
+        this.isDynamicallySpawned = true;
+        this._birthDimension = birthDimension;
+        
+        this.activeInTimelines = visibilityMask;
+        RecordState(birthDimension);
+        PropagateStates(birthDimension);
+        ApplyState(TimeManager.Instance.CurrentTime);
+    }
+
+    public void HandleTimeChange(TimeManager.TimeDimension oldTime, TimeManager.TimeDimension newTime)
+    {
         if (gameObject.activeSelf)
         {
-            RecordState(TimeManager.Instance.CurrentTime);
+            RecordState(oldTime);
         }
-
-        // 2. Propagate the changes according to the rules
-        PropagateStates(TimeManager.Instance.CurrentTime);
-
-        // 3. Apply the state (transform and material) for the NEW time dimension
+        PropagateStates(oldTime);
         ApplyState(newTime);
     }
 
@@ -90,18 +70,9 @@ public class TimeAwareObject : MonoBehaviour
     {
         switch (time)
         {
-            case TimeManager.TimeDimension.Past:
-                pastState.position = transform.position;
-                pastState.rotation = transform.rotation;
-                break;
-            case TimeManager.TimeDimension.Present:
-                presentState.position = transform.position;
-                presentState.rotation = transform.rotation;
-                break;
-            case TimeManager.TimeDimension.Future:
-                futureState.position = transform.position;
-                futureState.rotation = transform.rotation;
-                break;
+            case TimeManager.TimeDimension.Past: pastState.position = transform.position; pastState.rotation = transform.rotation; break;
+            case TimeManager.TimeDimension.Present: presentState.position = transform.position; presentState.rotation = transform.rotation; break;
+            case TimeManager.TimeDimension.Future: futureState.position = transform.position; futureState.rotation = transform.rotation; break;
         }
     }
 
@@ -109,57 +80,61 @@ public class TimeAwareObject : MonoBehaviour
     {
         switch (changedTime)
         {
-            case TimeManager.TimeDimension.Past:
-                presentState = pastState;
-                futureState = pastState;
-                break;
-            case TimeManager.TimeDimension.Present:
-                futureState = presentState;
-                break;
-            case TimeManager.TimeDimension.Future:
-                // No propagation
-                break;
+            case TimeManager.TimeDimension.Past: presentState = pastState; futureState = pastState; break;
+            case TimeManager.TimeDimension.Present: futureState = presentState; break;
         }
     }
 
+    private TimeManager.TimelineMask ConvertDimensionToMask(TimeManager.TimeDimension dimension)
+    {
+        switch (dimension)
+        {
+            case TimeManager.TimeDimension.Past: return TimeManager.TimelineMask.Past;
+            case TimeManager.TimeDimension.Present: return TimeManager.TimelineMask.Present;
+            case TimeManager.TimeDimension.Future: return TimeManager.TimelineMask.Future;
+            default: return TimeManager.TimelineMask.None;
+        }
+    }
+
+    // --- MODIFIED: The core logic now decides between Destroy() and SetActive() ---
     private void ApplyState(TimeManager.TimeDimension time)
     {
-        // --- THIS IS THE KEY LOGIC FIX ---
-        // An object should only exist if the current time is its creation time or later.
-        // We can treat the enums as integers for comparison (Past=0, Present=1, Future=2)
-        bool shouldExist = (int)time >= (int)creationDimension;
-
-        // Activate or deactivate the object based on the check.
-        gameObject.SetActive(shouldExist);
-
-
-        // If it shouldn't exist, stop here.
-        if (!shouldExist)
+        // --- NEW DESTRUCTION LOGIC ---
+        // Check if this object was spawned AND if we've traveled to a time before its creation.
+        // We can compare the enums as integers (Past=0, Present=1, Future=2).
+        if (isDynamicallySpawned && (int)time < (int)_birthDimension)
         {
+            // This is a paradox! Destroy the object permanently.
+            // OnDestroy() will handle unregistering from the TimeManager.
             Destroy(gameObject);
-            return;
+            return; // Stop processing for this now-destroyed object.
         }
 
-        // --- The rest of the method is the same ---
+        // --- STANDARD VISIBILITY LOGIC ---
+        // If we didn't destroy it, proceed with the normal show/hide logic.
+        TimeManager.TimelineMask currentMask = ConvertDimensionToMask(time);
+        bool shouldExist = (activeInTimelines & currentMask) != 0;
+        gameObject.SetActive(shouldExist);
+
+        if (!shouldExist) return;
+
+        // Apply transform and material...
         switch (time)
         {
             case TimeManager.TimeDimension.Past:
                 transform.position = pastState.position;
                 transform.rotation = pastState.rotation;
-                if (objectRenderer != null && pastMaterial != null)
-                    objectRenderer.material = pastMaterial;
+                if (objectRenderer != null && pastMaterial != null) objectRenderer.material = pastMaterial;
                 break;
             case TimeManager.TimeDimension.Present:
                 transform.position = presentState.position;
                 transform.rotation = presentState.rotation;
-                if (objectRenderer != null && presentMaterial != null)
-                    objectRenderer.material = presentMaterial;
+                if (objectRenderer != null && presentMaterial != null) objectRenderer.material = presentMaterial;
                 break;
             case TimeManager.TimeDimension.Future:
                 transform.position = futureState.position;
                 transform.rotation = futureState.rotation;
-                if (objectRenderer != null && futureStateMaterial != null)
-                    objectRenderer.material = futureStateMaterial;
+                if (objectRenderer != null && futureStateMaterial != null) objectRenderer.material = futureStateMaterial;
                 break;
         }
     }
