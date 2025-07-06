@@ -70,7 +70,11 @@ public class EarthbendingController : MonoBehaviour
         GameObject prefabToSpawn = rockPrefabs[currentRockTypeIndex];
         Vector3 startPosition = spawnPosition - Vector3.up * 0.5f;
         Vector3 endPosition = spawnPosition + Vector3.up * pullHeight;
-        GameObject newRock = Instantiate(prefabToSpawn, startPosition, Quaternion.identity);
+
+        // --- THIS IS THE ONLY LINE THAT HAS BEEN CHANGED ---
+        GameObject newRock = Instantiate(prefabToSpawn, startPosition, Quaternion.Euler(90, 0, 0));
+        // --- END OF CHANGE ---
+
         bentRocks.Add(newRock); // Add to the single list
 
         // Initialize its TimeAware component
@@ -99,6 +103,7 @@ public class EarthbendingController : MonoBehaviour
         Collider rockCollider = newRock.GetComponent<Collider>();
         if (rockRb) rockRb.isKinematic = true;
         if (rockCollider) rockCollider.enabled = false;
+        
 
         float elapsedTime = 0f;
         while (elapsedTime < pullDuration)
