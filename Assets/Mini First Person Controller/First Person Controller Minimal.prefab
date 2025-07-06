@@ -427,6 +427,9 @@ MonoBehaviour:
   canRun: 0
   runSpeed: 9
   runningKey: 304
+  playerCamera: {fileID: 0}
+  interactionDistance: 4
+  interactionKey: 101
 --- !u!1 &5241892580736583940
 GameObject:
   m_ObjectHideFlags: 0
