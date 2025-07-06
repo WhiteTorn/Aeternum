@@ -3416,11 +3416,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f80d3cefc0331449c1ff85449ef65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  displayMode: 0
   activeInTimelines: 1
   objectRenderer: {fileID: 0}
   pastMaterial: {fileID: 0}
   presentMaterial: {fileID: 0}
-  futureStateMaterial: {fileID: 0}
+  futureMaterial: {fileID: 0}
+  pastPrefab: {fileID: 0}
+  presentPrefab: {fileID: 0}
+  futurePrefab: {fileID: 0}
 --- !u!1001 &938560354
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5715,6 +5719,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 56a9fdd74225cff41b11eb02d566ffd0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1563123301}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 56a9fdd74225cff41b11eb02d566ffd0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1563123302}
   m_SourcePrefab: {fileID: 100100000, guid: 56a9fdd74225cff41b11eb02d566ffd0, type: 3}
 --- !u!1 &1563123300 stripped
 GameObject:
@@ -5743,6 +5750,27 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2477511411847689622, guid: 56a9fdd74225cff41b11eb02d566ffd0, type: 3}
+--- !u!114 &1563123302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1563123300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75f80d3cefc0331449c1ff85449ef65a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayMode: 0
+  activeInTimelines: -1
+  objectRenderer: {fileID: 0}
+  pastMaterial: {fileID: 2100000, guid: 8a21508ff72c4d041a8bcccc4b59f55c, type: 2}
+  presentMaterial: {fileID: 2100000, guid: 4e4deefae2417a848a9488443d8191a5, type: 2}
+  futureMaterial: {fileID: 2100000, guid: d8d8aee4e9ace674b9d657346b452929, type: 2}
+  pastPrefab: {fileID: 0}
+  presentPrefab: {fileID: 0}
+  futurePrefab: {fileID: 0}
 --- !u!1001 &1563504916
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8397,11 +8425,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f80d3cefc0331449c1ff85449ef65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  displayMode: 0
   activeInTimelines: -1
   objectRenderer: {fileID: 0}
   pastMaterial: {fileID: 2100000, guid: efe26027cacc84b409062a6cff9b90c4, type: 2}
   presentMaterial: {fileID: 2100000, guid: f1e38594f14520c48bc546f3a41f4f56, type: 2}
-  futureStateMaterial: {fileID: 2100000, guid: ff2f42e1397fe8a479eea2973e848d92, type: 2}
+  futureMaterial: {fileID: 0}
+  pastPrefab: {fileID: 0}
+  presentPrefab: {fileID: 0}
+  futurePrefab: {fileID: 0}
 --- !u!65 &1377177653269082361
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8811,11 +8843,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f80d3cefc0331449c1ff85449ef65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  displayMode: 0
   activeInTimelines: -1
   objectRenderer: {fileID: 0}
   pastMaterial: {fileID: 2100000, guid: 88b3961b9a9bd064ebcc2f4cbf42faf0, type: 2}
   presentMaterial: {fileID: 2100000, guid: 21ca8723c11d2d34abf1e9e595b0942a, type: 2}
-  futureStateMaterial: {fileID: 2100000, guid: 40598ecf603ac4d41b1f525da75d9d89, type: 2}
+  futureMaterial: {fileID: 0}
+  pastPrefab: {fileID: 0}
+  presentPrefab: {fileID: 0}
+  futurePrefab: {fileID: 0}
 --- !u!23 &3448260793788445639
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9473,11 +9509,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f80d3cefc0331449c1ff85449ef65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  displayMode: 0
   activeInTimelines: -1
   objectRenderer: {fileID: 0}
   pastMaterial: {fileID: 2100000, guid: d78d6cd3137a8824699cde034b4270c0, type: 2}
   presentMaterial: {fileID: 2100000, guid: 7ec4e7373ac023f42bc829945cdcdf38, type: 2}
-  futureStateMaterial: {fileID: 2100000, guid: aa60dc0f504f8eb41974f50e1528f594, type: 2}
+  futureMaterial: {fileID: 0}
+  pastPrefab: {fileID: 0}
+  presentPrefab: {fileID: 0}
+  futurePrefab: {fileID: 0}
 --- !u!1001 &5409184703052296150
 PrefabInstance:
   m_ObjectHideFlags: 0
