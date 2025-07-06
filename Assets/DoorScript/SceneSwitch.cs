@@ -14,7 +14,7 @@ public class SceneSwitch : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player has entered the scene switch trigger. Loading scene: " + sceneNumber);
-            // Load the scene with the specified build index number.
+            TimeManager.Instance.SwitchToPresent();
             SceneManager.LoadScene(sceneNumber);
             TimeManager.Instance.EnableTimeControl();
         }
