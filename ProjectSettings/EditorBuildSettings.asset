@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/amocana2.unity
     guid: d7b70d8c006cb2b47842f833159c4007
+  - enabled: 1
+    path: Assets/Scenes/MUSICPUZZLE.unity
+    guid: 64090cccf8e00164ca7c912960703954
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
