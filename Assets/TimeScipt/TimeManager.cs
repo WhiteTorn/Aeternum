@@ -6,6 +6,7 @@ public class TimeManager : MonoBehaviour
 {
     // --- Singleton Pattern ---
     public static TimeManager Instance { get; private set; }
+    public static event Action<TimeDimension> OnTimeDimensionChanged;
 
    // In TimeManager.cs
 
@@ -85,8 +86,9 @@ private void Awake()
         if (_currentTime == TimeDimension.Past) return;
         TimeDimension oldTime = _currentTime;
         _currentTime = TimeDimension.Past;
-        UpdateAllObjects(oldTime, _currentTime); // Call the new update method
-        Debug.Log("Switched to PAST. Present and Future will be reset.");
+        UpdateAllObjects(oldTime, _currentTime);
+        OnTimeDimensionChanged?.Invoke(_currentTime); // <-- ADD THIS LINE
+        Debug.Log("Switched to PAST...");
     }
 
     public void SwitchToPresent()
@@ -94,8 +96,9 @@ private void Awake()
         if (_currentTime == TimeDimension.Present) return;
         TimeDimension oldTime = _currentTime;
         _currentTime = TimeDimension.Present;
-        UpdateAllObjects(oldTime, _currentTime); // Call the new update method
-        Debug.Log("Switched to PRESENT. Future will be reset.");
+        UpdateAllObjects(oldTime, _currentTime);
+        OnTimeDimensionChanged?.Invoke(_currentTime); // <-- ADD THIS LINE
+        Debug.Log("Switched to PRESENT...");
     }
 
     public void SwitchToFuture()
@@ -103,7 +106,8 @@ private void Awake()
         if (_currentTime == TimeDimension.Future) return;
         TimeDimension oldTime = _currentTime;
         _currentTime = TimeDimension.Future;
-        UpdateAllObjects(oldTime, _currentTime); // Call the new update method
+        UpdateAllObjects(oldTime, _currentTime);
+        OnTimeDimensionChanged?.Invoke(_currentTime); // <-- ADD THIS LINE
         Debug.Log("Switched to FUTURE.");
     }
 
