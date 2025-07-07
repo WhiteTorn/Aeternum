@@ -12,7 +12,6 @@ public class ObjectGrabbing : MonoBehaviour
     [Tooltip("How tightly the object follows the hold point. Higher values are more rigid.")]
     [SerializeField] private float followStiffness = 100f;
 
-    // --- NEW SAFETY CHECK ---
     [Header("Safety Checks")]
     [Tooltip("How far below the player to check for the ground object.")]
     [SerializeField] private float groundCheckDistance = 1.1f;
@@ -82,7 +81,6 @@ public class ObjectGrabbing : MonoBehaviour
     
     void TryPickupObject()
     {
-        // 1. First Raycast: Check what the player is LOOKING AT.
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         RaycastHit hit;
 
@@ -90,21 +88,16 @@ public class ObjectGrabbing : MonoBehaviour
         {
             if (hit.collider.CompareTag("Grabbable"))
             {
-                // --- THIS IS THE NEW SAFETY CHECK LOGIC ---
-                // 2. Second Raycast: Check what the player is STANDING ON.
                 RaycastHit groundHit;
                 if (Physics.Raycast(transform.position, Vector3.down, out groundHit, groundCheckDistance))
                 {
-                    // 3. Compare the object we're looking at with the object we're standing on.
                     if (hit.collider == groundHit.collider)
                     {
-                        // If they are the same, do not pick it up!
                         Debug.Log("Cannot pick up an object you are standing on!");
-                        return; // Exit the function immediately.
+                        return; 
                     }
                 }
                 
-                // --- If the check passes, proceed with the normal pickup logic ---
                 grabbedObjectRb = hit.collider.GetComponent<Rigidbody>();
                 if (grabbedObjectRb != null)
                 {

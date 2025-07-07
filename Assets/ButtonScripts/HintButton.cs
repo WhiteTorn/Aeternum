@@ -8,7 +8,7 @@ public class HintButton : InteractiveButton
 
     protected override void Awake()
     {
-        base.Awake(); // Call the parent Awake method
+        base.Awake();
         if (puzzleManager == null)
         {
             Debug.LogError("Puzzle Manager not assigned on " + gameObject.name);
@@ -17,9 +17,8 @@ public class HintButton : InteractiveButton
 
     protected override void OnButtonPressed()
     {
-        base.OnButtonPressed(); // Call the base method for logging/consistency
+        base.OnButtonPressed(); 
         
-        // Tell the puzzle manager to play the hint sequence.
         puzzleManager.PlayHintSequence();
     }
 }

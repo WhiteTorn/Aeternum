@@ -27,30 +27,25 @@ public class DoorScript : MonoBehaviour
 
     private void Start()
     {
-        // Error check to ensure doors are assigned
         if (leftDoorPivot == null || rightDoorPivot == null)
         {
             Debug.LogError("One or both door pivots are not assigned in the Inspector!", this.gameObject);
             return;
         }
 
-        // Store the initial "closed" rotations
         leftDoorClosedRotation = leftDoorPivot.localRotation;
         rightDoorClosedRotation = rightDoorPivot.localRotation;
 
-        // Calculate and store the "open" rotations
         leftDoorOpenRotation = leftDoorClosedRotation * Quaternion.Euler(0, openAngleLeft, 0);
         rightDoorOpenRotation = rightDoorClosedRotation * Quaternion.Euler(0, openAngleRight, 0);
     }
 
-    /// <summary>
-    /// This public method is called by the player to open/close the doors.
-    /// </summary>
+   
     public void Interact()
     {
         if (isAnimating || leftDoorPivot == null || rightDoorPivot == null)
         {
-            return; // Don't do anything if animating or not set up correctly
+            return; 
         }
 
         isDoorOpen = !isDoorOpen;
@@ -61,7 +56,6 @@ public class DoorScript : MonoBehaviour
     {
         isAnimating = true;
 
-        // Determine the start and end rotations for both doors
         Quaternion leftStartRot = leftDoorPivot.localRotation;
         Quaternion rightStartRot = rightDoorPivot.localRotation;
 
@@ -71,7 +65,6 @@ public class DoorScript : MonoBehaviour
         float elapsedTime = 0f;
         while (elapsedTime < animationDuration)
         {
-            // Animate both doors simultaneously in the same loop
             leftDoorPivot.localRotation = Quaternion.Slerp(leftStartRot, leftEndRot, elapsedTime / animationDuration);
             rightDoorPivot.localRotation = Quaternion.Slerp(rightStartRot, rightEndRot, elapsedTime / animationDuration);
 
@@ -79,7 +72,6 @@ public class DoorScript : MonoBehaviour
             yield return null;
         }
 
-        // Snap to the final rotation to ensure precision
         leftDoorPivot.localRotation = leftEndRot;
         rightDoorPivot.localRotation = rightEndRot;
 

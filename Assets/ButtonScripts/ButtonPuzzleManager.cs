@@ -1,4 +1,4 @@
-using System.Collections; // Required for Coroutines
+using System.Collections; 
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -10,7 +10,6 @@ public class ButtonPuzzleManager : MonoBehaviour
     [Tooltip("Drag the audio clips here in the correct order for the puzzle solution.")]
     [SerializeField] private List<AudioClip> correctSequence;
     
-    // --- NEW VARIABLE ---
     [Tooltip("The delay in seconds between each sound when playing the hint.")]
     [SerializeField] private float hintPlaybackDelay = 1.0f;
 
@@ -24,7 +23,7 @@ public class ButtonPuzzleManager : MonoBehaviour
 
     private List<AudioClip> playerSequence = new List<AudioClip>();
     private AudioSource audioSource;
-    private bool isPlayingHint = false; // Prevents spamming the hint button
+    private bool isPlayingHint = false; 
 
     private void Awake()
     {
@@ -33,7 +32,6 @@ public class ButtonPuzzleManager : MonoBehaviour
 
     public void RecordPlayerInput(AudioClip sound)
     {
-        // Don't let the player input sounds while the hint is playing.
         if (isPlayingHint) return;
 
         playerSequence.Add(sound);
@@ -42,7 +40,6 @@ public class ButtonPuzzleManager : MonoBehaviour
 
     public void CheckSequence()
     {
-        // Don't let the player check while the hint is playing.
         if (isPlayingHint) return;
 
         if (IsSequenceCorrect())
@@ -70,20 +67,15 @@ public class ButtonPuzzleManager : MonoBehaviour
         return true;
     }
 
-    // --- NEW METHOD ---
-    /// <summary>
-    /// Called by the HintButton to play the correct sequence for the player.
-    /// </summary>
     public void PlayHintSequence()
     {
-        // If a hint is already playing, do nothing to prevent overlapping sounds.
+        
         if (isPlayingHint)
         {
             Debug.Log("Hint is already playing.");
             return;
         }
 
-        // Also, clear any sounds the player has already input so they can start fresh.
         playerSequence.Clear();
 
         StartCoroutine(HintPlaybackRoutine());
@@ -94,11 +86,9 @@ public class ButtonPuzzleManager : MonoBehaviour
         isPlayingHint = true;
         Debug.Log("Playing hint sequence...");
 
-        // Loop through each correct sound and play it.
         foreach (AudioClip sound in correctSequence)
         {
             audioSource.PlayOneShot(sound);
-            // Wait for the specified delay before playing the next sound.
             yield return new WaitForSeconds(hintPlaybackDelay);
         }
 

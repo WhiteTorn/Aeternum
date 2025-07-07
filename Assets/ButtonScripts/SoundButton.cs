@@ -16,7 +16,7 @@ public class SoundButton : InteractiveButton
 
     protected override void Awake()
     {
-        base.Awake(); // Call the parent Awake method
+        base.Awake(); 
         audioSource = GetComponent<AudioSource>();
         if (puzzleManager == null)
         {
@@ -26,11 +26,10 @@ public class SoundButton : InteractiveButton
 
     protected override void OnButtonPressed()
     {
-        base.OnButtonPressed(); // Good practice to call the base method
+        base.OnButtonPressed(); 
 
         AudioClip soundToPlay = null;
 
-        // Determine which sound to play based on the current time
         switch (TimeManager.Instance.CurrentTime)
         {
             case TimeManager.TimeDimension.Past:
@@ -46,9 +45,7 @@ public class SoundButton : InteractiveButton
 
         if (soundToPlay != null)
         {
-            // Play the sound
             audioSource.PlayOneShot(soundToPlay);
-            // Tell the manager to record this sound
             puzzleManager.RecordPlayerInput(soundToPlay);
         }
     }

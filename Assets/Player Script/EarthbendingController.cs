@@ -22,11 +22,9 @@ public class EarthbendingController : MonoBehaviour
     [Header("Effects")]
     [SerializeField] private ParticleSystem spawnVFX;
 
-    // --- Back to a single list for all rocks ---
     private List<GameObject> bentRocks = new List<GameObject>();
     private int currentRockTypeIndex = 0;
 
-    // --- PUBLIC GETTERS FOR THE UI ---
     public int CurrentRockCount => bentRocks.Count;
     public int MaxRockCount => maxBentObjects;
     public int CurrentRockIndex => currentRockTypeIndex;
@@ -34,7 +32,6 @@ public class EarthbendingController : MonoBehaviour
 
     void Update()
     {
-        // Clean up any nulls (destroyed rocks) from the list
         bentRocks.RemoveAll(item => item == null);
 
         if (Input.GetKeyDown(switchTypeKey)) SwitchRockType();
@@ -71,13 +68,10 @@ public class EarthbendingController : MonoBehaviour
         Vector3 startPosition = spawnPosition - Vector3.up * 0.5f;
         Vector3 endPosition = spawnPosition + Vector3.up * pullHeight;
 
-        // --- THIS IS THE ONLY LINE THAT HAS BEEN CHANGED ---
         GameObject newRock = Instantiate(prefabToSpawn, startPosition, Quaternion.Euler(90, 0, 0));
-        // --- END OF CHANGE ---
 
-        bentRocks.Add(newRock); // Add to the single list
+        bentRocks.Add(newRock); 
 
-        // Initialize its TimeAware component
         TimeAwareObject timeAwareComponent = newRock.GetComponent<TimeAwareObject>();
         if (timeAwareComponent != null)
         {
@@ -97,14 +91,12 @@ public class EarthbendingController : MonoBehaviour
             }
             timeAwareComponent.InitializeForSpawning(creationTime, visibility);
         }
-
-        // Animation logic (unchanged)
+        
         Rigidbody rockRb = newRock.GetComponent<Rigidbody>();
         Collider rockCollider = newRock.GetComponent<Collider>();
         if (rockRb) rockRb.isKinematic = true;
         if (rockCollider) rockCollider.enabled = false;
         
-
         float elapsedTime = 0f;
         while (elapsedTime < pullDuration)
         {

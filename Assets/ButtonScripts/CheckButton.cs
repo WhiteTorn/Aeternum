@@ -18,7 +18,6 @@ public class CheckButton : InteractiveButton
     protected override void OnButtonPressed()
     {
         base.OnButtonPressed();
-        // Just tell the manager to check the sequence. The manager handles the rest.
         puzzleManager.CheckSequence();
     }
 }

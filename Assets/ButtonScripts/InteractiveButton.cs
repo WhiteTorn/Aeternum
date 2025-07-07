@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(BoxCollider))] // Ensure there's a collider for the trigger
+[RequireComponent(typeof(BoxCollider))]
 public class InteractiveButton : MonoBehaviour
 {
     [Header("Animation Settings")]
@@ -15,7 +15,6 @@ public class InteractiveButton : MonoBehaviour
     [Header("Interaction")]
     [Tooltip("The key the player must press to use the button.")]
     [SerializeField] private KeyCode interactionKey = KeyCode.E;
-    // You could add a UI prompt here later if you want
 
     private Vector3 originalPosition;
     private bool isPlayerInRange = false;
@@ -24,13 +23,11 @@ public class InteractiveButton : MonoBehaviour
     protected virtual void Awake()
     {
         originalPosition = transform.localPosition;
-        // Make sure the collider is a trigger so the player can walk into it
         GetComponent<BoxCollider>().isTrigger = true;
     }
 
     private void Update()
     {
-        // Only allow interaction if the player is in range and the button isn't already animating
         if (isPlayerInRange && !isAnimating && Input.GetKeyDown(interactionKey))
         {
             StartCoroutine(AnimatePress());
@@ -41,7 +38,6 @@ public class InteractiveButton : MonoBehaviour
     {
         isAnimating = true;
 
-        // --- Press Down ---
         Vector3 pressedPosition = originalPosition + (animationAxis.normalized * animationDistance);
         float elapsedTime = 0f;
         while (elapsedTime < animationDuration)
@@ -52,14 +48,10 @@ public class InteractiveButton : MonoBehaviour
         }
         transform.localPosition = pressedPosition;
 
-        // --- THIS IS WHERE THE SPECIFIC BUTTON ACTION HAPPENS ---
         OnButtonPressed();
-        // ---------------------------------------------------------
 
-        // A small delay at the bottom
         yield return new WaitForSeconds(0.1f);
 
-        // --- Return Up ---
         elapsedTime = 0f;
         while (elapsedTime < animationDuration)
         {
@@ -72,13 +64,9 @@ public class InteractiveButton : MonoBehaviour
         isAnimating = false;
     }
 
-    /// <summary>
-    /// This method is meant to be overridden by child classes (SoundButton, CheckButton)
-    /// to define what happens when the button is physically pressed.
-    /// </summary>
+
     protected virtual void OnButtonPressed()
     {
-        // Base class does nothing, child classes will implement this.
         Debug.Log(gameObject.name + " was pressed.");
     }
 
